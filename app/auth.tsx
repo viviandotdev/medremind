@@ -33,8 +33,31 @@ export default function AuthScreen() {
   };
 
   const authenticate = async () => {
-    setIsAuthenticating(true);
-    setError(null);
+    try {
+      setIsAuthenticating(true);
+      setError(null);
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+      //   const supportedTypes =
+      //     await LocalAuthentication.supportedAuthenticationTypesAsync();
+      const auth = await LocalAuthentication.authenticateAsync({
+        promptMessage:
+          hasHardware && isEnrolled ? "Use face ID/TouchID" : "Enter PIN",
+        fallbackLabel: "Enter PIN",
+        cancelLabel: "Cancel",
+        disableDeviceFallback: false,
+      });
+
+      if (auth.success) {
+        router.replace("/"); // splash screen
+      } else {
+        setError("Authentication failed. Please try again.");
+      }
+    } catch (err) {
+      console.error("Error during authentication:", err);
+      setError("An error occurred. Please try again.");
+    }
   };
   return (
     <LinearGradient colors={["#4CAF50", "#2E7D32"]} style={styles.container}>
