@@ -50,7 +50,7 @@ export default function AuthScreen() {
       });
 
       if (auth.success) {
-        router.replace("/"); // splash screen
+        router.replace("/home"); // splash screen
       } else {
         setError("Authentication failed. Please try again.");
       }
