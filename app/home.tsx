@@ -124,9 +124,18 @@ export default function HomeScreen() {
       <LinearGradient colors={["#4CAF50", "#2E7D32"]} style={styles.header}>
         <View style={styles.headerContent}>
           <View style={styles.headerTop}>
-            <View>
+            <View style={{ flex: 1 }}>
               <Text style={styles.greeting}>Daily Progress</Text>
             </View>
+            <TouchableOpacity style={styles.notificationButton}>
+              <Ionicons name="notifications-outline" size={24} color="white" />
+              {
+                /* Notification Badge */
+                <View style={styles.notificationBadge}>
+                  <Text style={styles.notificationCount}>3</Text>
+                </View>
+              }
+            </TouchableOpacity>
           </View>
           <CircularProgress
             progress={0.75}
@@ -165,6 +174,35 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "white",
     opacity: 0.9,
+  },
+  flex1: {
+    flex: 1,
+  },
+  notificationButton: {
+    position: "relative",
+    padding: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -4,
+    right: -4,
+    backgroundColor: "#FF5252",
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#146922",
+    paddingHorizontal: 4,
+  },
+  notificationCount: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "bold",
   },
   content: {
     flex: 1,
