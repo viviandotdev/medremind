@@ -46,6 +46,14 @@ export default function RootLayout() {
       >
         <Stack.Screen name="home" />
         <Stack.Screen name="index" />
+        <Stack.Screen
+          name="medications/add"
+          options={{
+            headerShown: false,
+            headerBackTitle: "",
+            title: "Add Medication",
+          }}
+        />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
