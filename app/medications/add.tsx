@@ -17,11 +17,92 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { BlurView } from "expo-blur";
 import React from "react";
+import { DURATIONS, FREQUENCIES } from "@/constants/Medications";
 
 const { width } = Dimensions.get("window");
 
 export default function AddMedicationScreen() {
   const router = useRouter();
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [selectedFrequency, setSelectedFrequency] = useState("");
+  const [selectedDuration, setSelectedDuration] = useState("");
+  const renderFrequencyOptions = () => {
+    return (
+      <View style={styles.optionsGrid}>
+        {FREQUENCIES.map((freq) => (
+          <TouchableOpacity
+            key={freq.id}
+            style={[
+              styles.optionCard,
+              selectedFrequency === freq.label && styles.selectedOptionCard,
+            ]}
+            onPress={() => {
+              setSelectedFrequency(freq.label);
+              //   setForm({ ...form, frequency: freq.label });
+            }}
+          >
+            <View
+              style={[
+                styles.optionIcon,
+                selectedFrequency === freq.label && styles.selectedOptionIcon,
+              ]}
+            >
+              <Ionicons
+                name={freq.icon}
+                size={24}
+                color={selectedFrequency === freq.label ? "white" : "#666"}
+              />
+            </View>
+            <Text
+              style={[
+                styles.optionLabel,
+                selectedFrequency === freq.label && styles.selectedOptionLabel,
+              ]}
+            >
+              {freq.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
+
+  const renderDurationOptions = () => {
+    return (
+      <View style={styles.optionsGrid}>
+        {DURATIONS.map((dur) => (
+          <TouchableOpacity
+            key={dur.id}
+            style={[
+              styles.optionCard,
+              selectedDuration === dur.label && styles.selectedOptionCard,
+            ]}
+            onPress={() => {
+              setSelectedDuration(dur.label);
+              //   setForm({ ...form, duration: dur.label });
+            }}
+          >
+            <Text
+              style={[
+                styles.durationNumber,
+                selectedDuration === dur.label && styles.selectedDurationNumber,
+              ]}
+            >
+              {dur.value > 0 ? dur.value : "∞"}
+            </Text>
+            <Text
+              style={[
+                styles.optionLabel,
+                selectedDuration === dur.label && styles.selectedOptionLabel,
+              ]}
+            >
+              {dur.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  };
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -46,10 +127,11 @@ export default function AddMedicationScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.formContentContainer}
         >
+          {/* Basic Information */}
           <View style={styles.section}>
             <View style={styles.inputContainer}>
               <TextInput
-                style={[styles.mainInput]}
+                style={[styles.mainInput, errors.name && styles.inputError]}
                 placeholder="Medication Name"
                 placeholderTextColor="#999"
                 // value={form.name}
@@ -60,7 +142,41 @@ export default function AddMedicationScreen() {
                 //   }
                 // }}
               />
+              {errors.name && (
+                <Text style={styles.errorText}>{errors.name}</Text>
+              )}
             </View>
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={[styles.mainInput, errors.dosage && styles.inputError]}
+                placeholder="Dosage (e.g., 500mg)"
+                placeholderTextColor="#999"
+                // value={form.dosage}
+                // onChangeText={(text) => {
+                //   setForm({ ...form, dosage: text });
+                //   if (errors.dosage) {
+                //     setErrors({ ...errors, dosage: "" });
+                //   }
+                // }}
+              />
+              {errors.dosage && (
+                <Text style={styles.errorText}>{errors.dosage}</Text>
+              )}
+            </View>
+          </View>
+          {/* Schedule */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>How often?</Text>
+            {errors.frequency && (
+              <Text style={styles.errorText}>{errors.frequency}</Text>
+            )}
+            {renderFrequencyOptions()}
+            <Text style={styles.sectionTitle}>For how long?</Text>
+            {errors.duration && (
+              <Text style={styles.errorText}>{errors.duration}</Text>
+            )}
+            {renderDurationOptions()}
           </View>
         </ScrollView>
       </View>
@@ -145,5 +261,65 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: "#FF5252",
+  },
+  optionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginHorizontal: -5,
+  },
+  optionCard: {
+    width: (width - 60) / 2,
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 15,
+    margin: 5,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  selectedOptionCard: {
+    backgroundColor: "#1a8e2d",
+    borderColor: "#1a8e2d",
+  },
+  optionIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  selectedOptionIcon: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
+  optionLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#333",
+    textAlign: "center",
+  },
+  selectedOptionLabel: {
+    color: "white",
+  },
+  durationNumber: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1a8e2d",
+    marginBottom: 5,
+  },
+  selectedDurationNumber: {
+    color: "white",
+  },
+  errorText: {
+    color: "#FF5252",
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 12,
   },
 });
