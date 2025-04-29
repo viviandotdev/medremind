@@ -23,6 +23,20 @@ const { width } = Dimensions.get("window");
 
 export default function AddMedicationScreen() {
   const router = useRouter();
+  const [form, setForm] = useState({
+    name: "",
+    dosage: "",
+    frequency: "",
+    duration: "",
+    startDate: new Date(),
+    times: ["09:00"],
+    notes: "",
+    reminderEnabled: true,
+    refillReminder: false,
+    currentSupply: "",
+    refillAt: "",
+  });
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [selectedFrequency, setSelectedFrequency] = useState("");
   const [selectedDuration, setSelectedDuration] = useState("");
@@ -38,7 +52,7 @@ export default function AddMedicationScreen() {
             ]}
             onPress={() => {
               setSelectedFrequency(freq.label);
-              //   setForm({ ...form, frequency: freq.label });
+              setForm({ ...form, frequency: freq.label });
             }}
           >
             <View
@@ -79,7 +93,7 @@ export default function AddMedicationScreen() {
             ]}
             onPress={() => {
               setSelectedDuration(dur.label);
-              //   setForm({ ...form, duration: dur.label });
+              setForm({ ...form, duration: dur.label });
             }}
           >
             <Text
@@ -134,13 +148,13 @@ export default function AddMedicationScreen() {
                 style={[styles.mainInput, errors.name && styles.inputError]}
                 placeholder="Medication Name"
                 placeholderTextColor="#999"
-                // value={form.name}
-                // onChangeText={(text) => {
-                //   setForm({ ...form, name: text });
-                //   if (errors.name) {
-                //     setErrors({ ...errors, name: "" });
-                //   }
-                // }}
+                value={form.name}
+                onChangeText={(text) => {
+                  setForm({ ...form, name: text });
+                  if (errors.name) {
+                    setErrors({ ...errors, name: "" });
+                  }
+                }}
               />
               {errors.name && (
                 <Text style={styles.errorText}>{errors.name}</Text>
@@ -152,13 +166,13 @@ export default function AddMedicationScreen() {
                 style={[styles.mainInput, errors.dosage && styles.inputError]}
                 placeholder="Dosage (e.g., 500mg)"
                 placeholderTextColor="#999"
-                // value={form.dosage}
-                // onChangeText={(text) => {
-                //   setForm({ ...form, dosage: text });
-                //   if (errors.dosage) {
-                //     setErrors({ ...errors, dosage: "" });
-                //   }
-                // }}
+                value={form.dosage}
+                onChangeText={(text) => {
+                  setForm({ ...form, dosage: text });
+                  if (errors.dosage) {
+                    setErrors({ ...errors, dosage: "" });
+                  }
+                }}
               />
               {errors.dosage && (
                 <Text style={styles.errorText}>{errors.dosage}</Text>
