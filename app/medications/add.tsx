@@ -42,7 +42,11 @@ export default function AddMedicationScreen() {
   const [selectedDuration, setSelectedDuration] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleSave = async () => {
+    console.log("save");
+  };
   const renderFrequencyOptions = () => {
     return (
       <View style={styles.optionsGrid}>
@@ -382,10 +386,52 @@ export default function AddMedicationScreen() {
                 )}
               </View>
             </View>
-
-            
+          </View>
+          {/* Notes */}
+          <View style={styles.section}>
+            <View style={styles.textAreaContainer}>
+              <TextInput
+                style={styles.textArea}
+                placeholder="Add notes or special instructions..."
+                placeholderTextColor="#999"
+                value={form.notes}
+                onChangeText={(text) => setForm({ ...form, notes: text })}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+            </View>
           </View>
         </ScrollView>
+
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={[
+              styles.saveButton,
+              isSubmitting && styles.saveButtonDisabled,
+            ]}
+            onPress={handleSave}
+            disabled={isSubmitting}
+          >
+            <LinearGradient
+              colors={["#1a8e2d", "#146922"]}
+              style={styles.saveButtonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.saveButtonText}>
+                {isSubmitting ? "Adding..." : "Add Medication"}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.cancelButtonText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -694,5 +740,22 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "700",
+  },
+  saveButtonDisabled: {
+    opacity: 0.7,
+  },
+  cancelButton: {
+    paddingVertical: 15,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
+  },
+  cancelButtonText: {
+    color: "#666",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
