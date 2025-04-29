@@ -264,6 +264,126 @@ export default function AddMedicationScreen() {
                 }}
               />
             )}
+
+            {/* Reminders */}
+            <View style={styles.section}>
+              <View style={styles.card}>
+                <View style={styles.switchRow}>
+                  <View style={styles.switchLabelContainer}>
+                    <View style={styles.iconContainer}>
+                      <Ionicons
+                        name="notifications"
+                        size={20}
+                        color="#1a8e2d"
+                      />
+                    </View>
+                    <View>
+                      <Text style={styles.switchLabel}>Reminders</Text>
+                      <Text style={styles.switchSubLabel}>
+                        Get notified when it's time to take your medication
+                      </Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={form.reminderEnabled}
+                    onValueChange={(value) =>
+                      setForm({ ...form, reminderEnabled: value })
+                    }
+                    trackColor={{ false: "#ddd", true: "#1a8e2d" }}
+                    thumbColor="white"
+                  />
+                </View>
+              </View>
+            </View>
+
+            {/* Refill Tracking */}
+            <View style={styles.section}>
+              <View style={styles.card}>
+                <View style={styles.switchRow}>
+                  <View style={styles.switchLabelContainer}>
+                    <View style={styles.iconContainer}>
+                      <Ionicons name="reload" size={20} color="#1a8e2d" />
+                    </View>
+                    <View>
+                      <Text style={styles.switchLabel}>Refill Tracking</Text>
+                      <Text style={styles.switchSubLabel}>
+                        Get notified when you need to refill
+                      </Text>
+                    </View>
+                  </View>
+                  <Switch
+                    value={form.refillReminder}
+                    onValueChange={(value) => {
+                      setForm({ ...form, refillReminder: value });
+                      if (!value) {
+                        setErrors({
+                          ...errors,
+                          currentSupply: "",
+                          refillAt: "",
+                        });
+                      }
+                    }}
+                    trackColor={{ false: "#ddd", true: "#1a8e2d" }}
+                    thumbColor="white"
+                  />
+                </View>
+                {/* refill reminder */}
+                {form.refillReminder && (
+                  <View style={styles.refillInputs}>
+                    <View style={styles.inputRow}>
+                      <View style={[styles.inputContainer, styles.flex1]}>
+                        <TextInput
+                          style={[
+                            styles.input,
+                            errors.currentSupply && styles.inputError,
+                          ]}
+                          placeholder="Current Supply"
+                          placeholderTextColor="#999"
+                          value={form.currentSupply}
+                          onChangeText={(text) => {
+                            setForm({ ...form, currentSupply: text });
+                            if (errors.currentSupply) {
+                              setErrors({ ...errors, currentSupply: "" });
+                            }
+                          }}
+                          keyboardType="numeric"
+                        />
+                        {errors.currentSupply && (
+                          <Text style={styles.errorText}>
+                            {errors.currentSupply}
+                          </Text>
+                        )}
+                      </View>
+                      <View style={[styles.inputContainer, styles.flex1]}>
+                        <TextInput
+                          style={[
+                            styles.input,
+                            errors.refillAt && styles.inputError,
+                          ]}
+                          placeholder="Alert at"
+                          placeholderTextColor="#999"
+                          value={form.refillAt}
+                          onChangeText={(text) => {
+                            setForm({ ...form, refillAt: text });
+                            if (errors.refillAt) {
+                              setErrors({ ...errors, refillAt: "" });
+                            }
+                          }}
+                          keyboardType="numeric"
+                        />
+                        {errors.refillAt && (
+                          <Text style={styles.errorText}>
+                            {errors.refillAt}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            
           </View>
         </ScrollView>
       </View>
@@ -478,5 +598,101 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+  },
+  //   refill styles
+  card: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  switchRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  switchLabelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#f5f5f5",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  switchLabel: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+  },
+  switchSubLabel: {
+    fontSize: 13,
+    color: "#666",
+    marginTop: 2,
+  },
+  // refill tracker
+  inputRow: {
+    flexDirection: "row",
+    marginTop: 15,
+    gap: 10,
+  },
+  flex1: {
+    flex: 1,
+  },
+  input: {
+    padding: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  // notes
+  textAreaContainer: {
+    backgroundColor: "white",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  textArea: {
+    height: 100,
+    padding: 15,
+    fontSize: 16,
+    color: "#333",
+  },
+  footer: {
+    padding: 20,
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "#e0e0e0",
+  },
+  // submit button
+  saveButton: {
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  saveButtonGradient: {
+    paddingVertical: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  saveButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });
