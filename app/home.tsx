@@ -170,6 +170,31 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
+        <View style={styles.quickActionsContainer}>
+          <Text style={styles.sectionTitle}>Today's Schedule</Text>
+          <Link rel="stylesheet" href="/calendar">
+            <TouchableOpacity>
+              <Text>See All</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+        {true ? (
+          <View style={styles.emptyState}>
+            <Ionicons name="medical-outline" size={48} color="#ccc" />
+            <Text style={styles.emptyStateText}>
+              No medications scheduled for today
+            </Text>
+            <Link href="/medications/add" asChild>
+              <TouchableOpacity style={styles.addMedicationButton}>
+                <Text style={styles.addMedicationButtonText}>
+                  Add Medication
+                </Text>
+              </TouchableOpacity>
+            </Link>
+          </View>
+        ) : (
+          <></>
+        )}
       </View>
     </ScrollView>
   );
@@ -316,5 +341,43 @@ const styles = StyleSheet.create({
   },
   progressRing: {
     transform: [{ rotate: "-90deg" }],
+  },
+  emptyState: {
+    alignItems: "center",
+    padding: 30,
+    backgroundColor: "white",
+    borderRadius: 16,
+    marginTop: 10,
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  addMedicationButton: {
+    backgroundColor: "#1a8e2d",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+  },
+  addMedicationButtonText: {
+    color: "white",
+    fontWeight: "600",
+  },
+  takenBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#E8F5E9",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginLeft: 10,
+  },
+  takenText: {
+    color: "#4CAF50",
+    fontWeight: "600",
+    fontSize: 14,
+    marginLeft: 4,
   },
 });
