@@ -119,6 +119,7 @@ function CircularProgress({
 }
 
 export default function HomeScreen() {
+  const router = useRouter();
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={["#4CAF50", "#2E7D32"]} style={styles.header}>
@@ -144,6 +145,32 @@ export default function HomeScreen() {
           />
         </View>
       </LinearGradient>
+
+      <View style={styles.content}>
+        <View style={styles.quickActionsContainer}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsGrid}>
+            {QUICK_ACTIONS.map((action) => (
+              // @ts-ignore
+              <Link href={action.route} key={action.label} asChild>
+                <TouchableOpacity style={styles.actionButton}>
+                  <LinearGradient
+                    colors={action.gradient}
+                    style={styles.actionGradient}
+                  >
+                    <View style={styles.actionContent}>
+                      <View style={styles.actionIcon}>
+                        <Ionicons name={action.icon} size={28} color="white" />
+                      </View>
+                      <Text style={styles.actionLabel}>{action.label}</Text>
+                    </View>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </Link>
+            ))}
+          </View>
+        </View>
+      </View>
     </ScrollView>
   );
 }
@@ -208,6 +235,44 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
   },
+  quickActionsContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 25,
+  },
+  quickActionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 15,
+  },
+  actionButton: {
+    width: (width - 52) / 2,
+    height: 110,
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  actionGradient: {
+    flex: 1,
+    padding: 15,
+  },
+  actionContent: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  actionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  actionLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "white",
+    marginTop: 8,
+  },
   section: {
     paddingHorizontal: 20,
   },
@@ -251,8 +316,5 @@ const styles = StyleSheet.create({
   },
   progressRing: {
     transform: [{ rotate: "-90deg" }],
-  },
-  flex1: {
-    flex: 1,
   },
 });
