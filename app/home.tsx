@@ -14,6 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle } from "react-native-svg";
 import { Link, useFocusEffect, useRouter } from "expo-router";
+import { Medication } from "@/types";
 
 // @ts-ignore
 
@@ -120,6 +121,9 @@ function CircularProgress({
 
 export default function HomeScreen() {
   const router = useRouter();
+  // Define the Medication interface
+
+  const [medications, setMedications] = useState<Medication[]>([]);
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={["#4CAF50", "#2E7D32"]} style={styles.header}>
@@ -174,7 +178,7 @@ export default function HomeScreen() {
           <Text style={styles.sectionTitle}>Today's Schedule</Text>
           <Link rel="stylesheet" href="/calendar">
             <TouchableOpacity>
-              <Text>See All</Text>
+              <Text style={styles.seeAllButton}>See All</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -193,7 +197,52 @@ export default function HomeScreen() {
             </Link>
           </View>
         ) : (
-          <></>
+          [].map((medication: Medication) => {
+            // const taken = isDoseTaken(medication.id);
+            const taken = false; // Replace with actual function call to check if dose is taken
+            return (
+              <View key={medication.id} style={styles.doseCard}>
+                <View
+                  style={[
+                    styles.doseBadge,
+                    { backgroundColor: `${medication.color}15` },
+                  ]}
+                >
+                  <Ionicons name="medical" size={24} color={medication.color} />
+                </View>
+                <View style={styles.doseInfo}>
+                  <View>
+                    <Text style={styles.medicineName}>{medication.name}</Text>
+                    <Text style={styles.dosageInfo}>{medication.dosage}</Text>
+                  </View>
+                  <View style={styles.doseTime}>
+                    <Ionicons name="time-outline" size={16} color="#666" />
+                    <Text style={styles.timeText}>{medication.times[0]}</Text>
+                  </View>
+                </View>
+                {taken ? (
+                  <View style={[styles.takenBadge]}>
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={20}
+                      color="#4CAF50"
+                    />
+                    <Text style={styles.takenText}>Taken</Text>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={[
+                      styles.takeDoseButton,
+                      { backgroundColor: medication.color },
+                    ]}
+                    onPress={() => {}}
+                  >
+                    <Text style={styles.takeDoseText}>Take</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          })
         )}
       </View>
     </ScrollView>
@@ -236,6 +285,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.15)",
     borderRadius: 12,
     marginLeft: 8,
+  },
+  seeAllButton: {
+    color: "#2E7D32",
+    fontWeight: "600",
   },
   notificationBadge: {
     position: "absolute",
@@ -379,5 +432,61 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 14,
     marginLeft: 4,
+  },
+  doseCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  doseBadge: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 15,
+  },
+  doseInfo: {
+    flex: 1,
+    justifyContent: "space-between",
+  },
+  medicineName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: 4,
+  },
+  dosageInfo: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+  },
+  doseTime: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  timeText: {
+    marginLeft: 5,
+    color: "#666",
+    fontSize: 14,
+  },
+  takeDoseButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    borderRadius: 15,
+    marginLeft: 10,
+  },
+  takeDoseText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 14,
   },
 });
