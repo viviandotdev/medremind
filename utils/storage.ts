@@ -134,3 +134,12 @@ export async function recordDose(
     throw error;
   }
 }
+
+export async function clearAllData(): Promise<void> {
+  try {
+    await AsyncStorage.multiRemove([MEDICATIONS_KEY, DOSE_HISTORY_KEY]);
+  } catch (error) {
+    console.error("Error clearing data:", error);
+    throw error;
+  }
+}
