@@ -16,8 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle } from "react-native-svg";
 import { Link, useFocusEffect, useRouter } from "expo-router";
 import { Medication } from "@/types";
-
-// @ts-ignore
+import { getMedications } from "@/utils/storage";
 
 const { width } = Dimensions.get("window");
 
@@ -126,6 +125,44 @@ export default function HomeScreen() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [todaysMedications, setTodaysMedications] = useState<Medication[]>([]);
+
+  const loadMedications = useCallback(async () => {
+    try {
+      const [allMedications] = await Promise.all([getMedications()]);
+
+      setMedications(allMedications);
+
+      // Filter medications for today
+      const today = new Date();
+      const todayMeds = allMedications.filter((med) => {
+        const startDate = new Date(med.startDate);
+        const durationDays = parseInt(med.duration.split(" ")[0]);
+
+        // For ongoing medications or if within duration
+        if (
+          durationDays === -1 ||
+          (today >= startDate &&
+            today <=
+              new Date(
+                startDate.getTime() + durationDays * 24 * 60 * 60 * 1000
+              ))
+        ) {
+          return true;
+        }
+        return false;
+      });
+
+      setTodaysMedications(todayMeds);
+    } catch (error) {
+      console.error("Error loading medications:", error);
+    }
+  }, []);
+
+  // Use useEffect for initial load
+  useEffect(() => {
+    loadMedications();
+  }, []);
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <LinearGradient colors={["#4CAF50", "#2E7D32"]} style={styles.header}>
@@ -184,7 +221,7 @@ export default function HomeScreen() {
             </TouchableOpacity>
           </Link>
         </View>
-        {true ? (
+        {todaysMedications.length === 0 ? (
           <View style={styles.emptyState}>
             <Ionicons name="medical-outline" size={48} color="#ccc" />
             <Text style={styles.emptyStateText}>

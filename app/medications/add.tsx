@@ -19,6 +19,7 @@ import { BlurView } from "expo-blur";
 import React from "react";
 import { DURATIONS, FREQUENCIES } from "@/constants/Medications";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { addMedication } from "@/utils/storage";
 const { width } = Dimensions.get("window");
 
 export default function AddMedicationScreen() {
@@ -44,8 +45,58 @@ export default function AddMedicationScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (!form.name) newErrors.name = "Medication name is required.";
+    if (!form.dosage) newErrors.dosage = "Dosage is required.";
+    if (!selectedFrequency) newErrors.frequency = "Please select a frequency.";
+    if (!selectedDuration) newErrors.duration = "Please select a duration.";
+    if (form.refillReminder && !form.currentSupply)
+      newErrors.currentSupply = "Current supply is required.";
+    if (form.refillReminder && !form.refillAt)
+      newErrors.refillAt = "Refill alert is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
   const handleSave = async () => {
     console.log("save");
+    try {
+      if (!validateForm()) {
+        Alert.alert("Please fill in all required fields.");
+        return;
+      }
+
+      if (isSubmitting) return;
+      setIsSubmitting(true);
+
+      // Generate a random color
+      const colors = ["#4CAF50", "#2196F3", "#FF9800", "#E91E63", "#9C27B0"];
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+      const medicationData = {
+        id: Math.random().toString(36).substr(2, 9),
+        ...form,
+        currentSupply: form.currentSupply ? Number(form.currentSupply) : 0,
+        totalSupply: form.currentSupply ? Number(form.currentSupply) : 0,
+        refillAt: form.refillAt ? Number(form.refillAt) : 0,
+        startDate: form.startDate.toISOString(),
+        color: randomColor,
+      };
+
+      await addMedication(medicationData);
+
+      Alert.alert(
+        "Success",
+        "Medication added successfully",
+        [
+          {
+            text: "OK",
+            onPress: () => router.back(),
+          },
+        ],
+        { cancelable: false }
+      );
+    } catch (error) {}
   };
   const renderFrequencyOptions = () => {
     return (
