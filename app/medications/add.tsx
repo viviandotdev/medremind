@@ -117,6 +117,28 @@ export default function AddMedicationScreen() {
       setIsSubmitting(false);
     }
   };
+
+  const handleFrequencySelect = (freq: string) => {
+    setSelectedFrequency(freq);
+    const selectedFreq = FREQUENCIES.find((f) => f.label === freq);
+    setForm((prev) => ({
+      ...prev,
+      frequency: freq,
+      times: selectedFreq?.times || [],
+    }));
+    if (errors.frequency) {
+      setErrors((prev) => ({ ...prev, frequency: "" }));
+    }
+  };
+
+  const handleDurationSelect = (dur: string) => {
+    setSelectedDuration(dur);
+    setForm((prev) => ({ ...prev, duration: dur }));
+    if (errors.duration) {
+      setErrors((prev) => ({ ...prev, duration: "" }));
+    }
+  };
+
   const renderFrequencyOptions = () => {
     return (
       <View style={styles.optionsGrid}>
@@ -128,8 +150,7 @@ export default function AddMedicationScreen() {
               selectedFrequency === freq.label && styles.selectedOptionCard,
             ]}
             onPress={() => {
-              setSelectedFrequency(freq.label);
-              setForm({ ...form, frequency: freq.label });
+              handleFrequencySelect(freq.label);
             }}
           >
             <View
@@ -169,8 +190,7 @@ export default function AddMedicationScreen() {
               selectedDuration === dur.label && styles.selectedOptionCard,
             ]}
             onPress={() => {
-              setSelectedDuration(dur.label);
-              setForm({ ...form, duration: dur.label });
+              handleDurationSelect(dur.label);
             }}
           >
             <Text

@@ -16,7 +16,16 @@ import { Ionicons } from "@expo/vector-icons";
 import Svg, { Circle } from "react-native-svg";
 import { Link, useFocusEffect, useRouter } from "expo-router";
 import { Medication } from "@/types";
-import { getMedications } from "@/utils/storage";
+import {
+  DoseHistory,
+  getMedications,
+  getTodaysDoses,
+  recordDose,
+} from "@/utils/storage";
+import {
+  registerForPushNotificationsAsync,
+  scheduleMedicationReminder,
+} from "@/utils/notifications";
 
 const { width } = Dimensions.get("window");
 
@@ -87,7 +96,7 @@ function CircularProgress({
     <View style={styles.progressContainer}>
       <View style={styles.progressTextContainer}>
         <Text style={styles.progressPercentage}>
-          {Math.round((progress * 100) / 100)}%
+          {Math.round(progress * 100)}%
         </Text>
         <Text style={styles.progressDetails}>
           {completedDoses} of {totalDoses} doses
@@ -125,13 +134,18 @@ export default function HomeScreen() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [todaysMedications, setTodaysMedications] = useState<Medication[]>([]);
+  const [completedDoses, setCompletedDoses] = useState(0);
+  const [doseHistory, setDoseHistory] = useState<DoseHistory[]>([]);
 
   const loadMedications = useCallback(async () => {
     try {
-      const [allMedications] = await Promise.all([getMedications()]);
+      const [allMedications, todaysDoses] = await Promise.all([
+        getMedications(),
+        getTodaysDoses(),
+      ]);
 
       setMedications(allMedications);
-
+      setDoseHistory(todaysDoses);
       // Filter medications for today
       const today = new Date();
       const todayMeds = allMedications.filter((med) => {
@@ -153,15 +167,82 @@ export default function HomeScreen() {
       });
 
       setTodaysMedications(todayMeds);
+      // Calculate completed doses
+      const completed = todaysDoses.filter((dose) => dose.taken).length;
+      setCompletedDoses(completed);
     } catch (error) {
       console.error("Error loading medications:", error);
     }
   }, []);
 
+  const setupNotifications = async () => {
+    try {
+      const token = await registerForPushNotificationsAsync();
+      if (!token) {
+        console.log("Failed to get push notification token");
+        return;
+      }
+
+      // Schedule reminders for all medications
+      const medications = await getMedications();
+      for (const medication of medications) {
+        if (medication.reminderEnabled) {
+          await scheduleMedicationReminder(medication);
+        }
+      }
+    } catch (error) {
+      console.error("Error setting up notifications:", error);
+    }
+  };
+
   // Use useEffect for initial load
   useEffect(() => {
     loadMedications();
+    // setupNotifications();
+
+    // Handle app state changes for notifications
+    const subscription = AppState.addEventListener("change", (nextAppState) => {
+      if (nextAppState === "active") {
+        loadMedications();
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
   }, []);
+
+  // Use useFocusEffect for subsequent updates
+  useFocusEffect(
+    useCallback(() => {
+      const unsubscribe = () => {
+        // Cleanup if needed
+      };
+
+      loadMedications();
+      return () => unsubscribe();
+    }, [loadMedications])
+  );
+
+  const handleTakeDose = async (medication: Medication) => {
+    try {
+      await recordDose(medication.id, true, new Date().toISOString());
+      await loadMedications(); // Reload data after recording dose
+    } catch (error) {
+      console.error("Error recording dose:", error);
+      Alert.alert("Error", "Failed to record dose. Please try again.");
+    }
+  };
+
+  const isDoseTaken = (medicationId: string) => {
+    return doseHistory.some(
+      (dose) => dose.medicationId === medicationId && dose.taken
+    );
+  };
+  const progress =
+    todaysMedications.length > 0
+      ? completedDoses / (todaysMedications.length * 2)
+      : 0;
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -171,20 +252,25 @@ export default function HomeScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.greeting}>Daily Progress</Text>
             </View>
-            <TouchableOpacity style={styles.notificationButton}>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => setShowNotifications(true)}
+            >
               <Ionicons name="notifications-outline" size={24} color="white" />
               {
                 /* Notification Badge */
                 <View style={styles.notificationBadge}>
-                  <Text style={styles.notificationCount}>3</Text>
+                  <Text style={styles.notificationCount}>
+                    {todaysMedications.length}
+                  </Text>
                 </View>
               }
             </TouchableOpacity>
           </View>
           <CircularProgress
-            progress={0.75}
-            totalDoses={10}
-            completedDoses={7}
+            progress={progress}
+            totalDoses={todaysMedications.length * 2}
+            completedDoses={completedDoses}
           />
         </View>
       </LinearGradient>
@@ -237,8 +323,7 @@ export default function HomeScreen() {
           </View>
         ) : (
           medications.map((medication: Medication) => {
-            // const taken = isDoseTaken(medication.id);
-            const taken = false; // Replace with actual function call to check if dose is taken
+            const taken = isDoseTaken(medication.id);
             return (
               <View key={medication.id} style={styles.doseCard}>
                 <View
@@ -274,7 +359,7 @@ export default function HomeScreen() {
                       styles.takeDoseButton,
                       { backgroundColor: medication.color },
                     ]}
-                    onPress={() => {}}
+                    onPress={() => handleTakeDose(medication)}
                   >
                     <Text style={styles.takeDoseText}>Take</Text>
                   </TouchableOpacity>
