@@ -20,6 +20,7 @@ import React from "react";
 import { DURATIONS, FREQUENCIES } from "@/constants/Medications";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { addMedication } from "@/utils/storage";
+import { scheduleMedicationReminder } from "@/utils/notifications";
 const { width } = Dimensions.get("window");
 
 export default function AddMedicationScreen() {
@@ -85,6 +86,14 @@ export default function AddMedicationScreen() {
 
       await addMedication(medicationData);
 
+      // Schedule reminders if enabled
+      if (medicationData.reminderEnabled) {
+        await scheduleMedicationReminder(medicationData);
+      }
+      if (medicationData.refillReminder) {
+        await scheduleRefillReminder(medicationData);
+      }
+
       Alert.alert(
         "Success",
         "Medication added successfully",
@@ -96,7 +105,17 @@ export default function AddMedicationScreen() {
         ],
         { cancelable: false }
       );
-    } catch (error) {}
+    } catch (error) {
+      console.error("Save error:", error);
+      Alert.alert(
+        "Error",
+        "Failed to save medication. Please try again.",
+        [{ text: "OK" }],
+        { cancelable: false }
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
   const renderFrequencyOptions = () => {
     return (
@@ -810,3 +829,21 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
+function scheduleRefillReminder(medicationData: {
+  currentSupply: number;
+  totalSupply: number;
+  refillAt: number;
+  startDate: string;
+  color: string;
+  name: string;
+  dosage: string;
+  frequency: string;
+  duration: string;
+  times: string[];
+  notes: string;
+  reminderEnabled: boolean;
+  refillReminder: boolean;
+  id: string;
+}) {
+  throw new Error("Function not implemented.");
+}
